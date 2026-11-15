@@ -110,6 +110,13 @@ async function runVerification() {
   assert(typeof app === 'function', 'Express app initialized successfully');
   assert(Boolean(app.router || app._router), 'Express app loaded middleware and route stacks');
 
+  // 6. Documentation Assets
+  console.log('\n[6] API Documentation Assets:');
+  const openapi = require('../docs/openapi.json');
+  const postman = require('../docs/postman_collection.json');
+  assert(openapi.openapi.startsWith('3.') && Object.keys(openapi.paths).length >= 5, 'OpenAPI 3.0 specification contains documented routes');
+  assert(postman.info.name && postman.item.length >= 8, 'Postman Collection v2.1 contains test request suite');
+
   console.log('\n' + '='.repeat(65));
   console.log(`SUMMARY: ${passed}/${total} checks passed successfully.`);
   console.log('='.repeat(65));
