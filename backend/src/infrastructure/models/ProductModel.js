@@ -38,6 +38,11 @@ const productSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
+    imageUrl: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     status: {
       type: String,
       enum: {

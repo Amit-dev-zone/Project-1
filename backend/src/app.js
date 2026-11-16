@@ -9,10 +9,14 @@ const errorHandler = require('./interfaces/middleware/errorHandler');
 
 const app = express();
 
-// Security headers (relaxed CSP for Swagger UI explorer compatibility)
-app.use(helmet({ contentSecurityPolicy: false }));
+// Security headers (relaxed CSP for Swagger UI explorer compatibility and static image loading)
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static uploaded product images
+app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 
 // Interactive Swagger/OpenAPI Documentation
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

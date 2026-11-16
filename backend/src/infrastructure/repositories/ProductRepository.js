@@ -16,6 +16,7 @@ class ProductRepository {
       price: doc.price,
       stock: doc.stock,
       category: doc.category,
+      imageUrl: doc.imageUrl || '',
       status: doc.status,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
@@ -32,7 +33,7 @@ class ProductRepository {
     return this._toEntity(doc);
   }
 
-  async findByVendorId(vendorId, { status, limit = 20, skip = 0 } = {}) {
+  async findByVendorId(vendorId, { status, limit = 50, skip = 0 } = {}) {
     const query = { vendorId };
     if (status) query.status = status;
     const docs = await this.model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });

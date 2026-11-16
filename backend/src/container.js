@@ -11,6 +11,7 @@ const UserService = require('./application/services/UserService');
 const ProductService = require('./application/services/ProductService');
 
 const AuthController = require('./interfaces/controllers/authController');
+const ProductController = require('./interfaces/controllers/productController');
 
 // 1. Instantiate Infrastructure & Security
 const passwordHasher = new PasswordHasher();
@@ -35,6 +36,10 @@ const authController = new AuthController({
   userService,
 });
 
+const productController = new ProductController({
+  productService,
+});
+
 module.exports = {
   userRepository,
   productRepository,
@@ -43,4 +48,5 @@ module.exports = {
   userService,
   productService,
   authController,
+  productController,
 };

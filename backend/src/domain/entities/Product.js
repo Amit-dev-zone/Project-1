@@ -13,6 +13,7 @@ class Product {
     price,
     stock = 0,
     category,
+    imageUrl = '',
     status = PRODUCT_STATUS.ACTIVE,
     createdAt = new Date(),
     updatedAt = new Date(),
@@ -24,6 +25,7 @@ class Product {
     this.price = Number(price);
     this.stock = Number(stock);
     this.category = category;
+    this.imageUrl = imageUrl;
     this.status = status;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -91,6 +93,7 @@ class Product {
       price: this.price,
       stock: this.stock,
       category: this.category,
+      imageUrl: this.imageUrl,
       status: this.status,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
