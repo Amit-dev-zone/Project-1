@@ -6,6 +6,7 @@ import VendorLayout from './components/VendorLayout';
 import VendorLogin from './pages/VendorLogin';
 import VendorRegister from './pages/VendorRegister';
 import DashboardHome from './pages/DashboardHome';
+import ProductList from './pages/ProductList';
 
 function RootRedirect() {
   const { isAuthenticated, loading } = useAuth();
@@ -13,16 +14,7 @@ function RootRedirect() {
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
 }
 
-// Temporary placeholders for Day 5 & Day 6 modules
-function ProductsListPlaceholder() {
-  return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-400">
-      <h2 className="text-xl font-bold text-white mb-2">Product Catalog Table</h2>
-      <p className="text-xs">Scheduled for Day 5 (Nov 20): Full inventory table with status filters and delete modals.</p>
-    </div>
-  );
-}
-
+// Temporary placeholder for Day 6 form module
 function ProductFormPlaceholder() {
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-400">
@@ -49,7 +41,7 @@ export function AppRoutes() {
         }
       >
         <Route index element={<DashboardHome />} />
-        <Route path="products" element={<ProductsListPlaceholder />} />
+        <Route path="products" element={<ProductList />} />
         <Route path="products/new" element={<ProductFormPlaceholder />} />
         <Route path="products/edit/:id" element={<ProductFormPlaceholder />} />
       </Route>
