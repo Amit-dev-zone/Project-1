@@ -7,21 +7,12 @@ import VendorLogin from './pages/VendorLogin';
 import VendorRegister from './pages/VendorRegister';
 import DashboardHome from './pages/DashboardHome';
 import ProductList from './pages/ProductList';
+import ProductForm from './pages/ProductForm';
 
 function RootRedirect() {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return null;
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
-}
-
-// Temporary placeholder for Day 6 form module
-function ProductFormPlaceholder() {
-  return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-400">
-      <h2 className="text-xl font-bold text-white mb-2">Create & Edit Product Form</h2>
-      <p className="text-xs">Scheduled for Day 6 (Nov 21): Multipart image upload, live preview, and pricing inputs.</p>
-    </div>
-  );
 }
 
 export function AppRoutes() {
@@ -42,8 +33,8 @@ export function AppRoutes() {
       >
         <Route index element={<DashboardHome />} />
         <Route path="products" element={<ProductList />} />
-        <Route path="products/new" element={<ProductFormPlaceholder />} />
-        <Route path="products/edit/:id" element={<ProductFormPlaceholder />} />
+        <Route path="products/new" element={<ProductForm />} />
+        <Route path="products/edit/:id" element={<ProductForm />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
