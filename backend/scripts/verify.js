@@ -167,8 +167,12 @@ async function runVerification() {
 
   const openapi = require('../docs/openapi.json');
   const postman = require('../docs/postman_collection.json');
+  const totalPostmanRequests = postman.item.reduce(
+    (acc, it) => acc + (Array.isArray(it.item) ? it.item.length : 1),
+    0
+  );
   assert(openapi.openapi.startsWith('3.') && Object.keys(openapi.paths).length >= 5, 'OpenAPI 3.0 specification contains documented routes');
-  assert(postman.info.name && postman.item.length >= 8, 'Postman Collection v2.1 contains test request suite');
+  assert(Boolean(postman.info.name) && totalPostmanRequests >= 8, 'Postman Collection v2.1 contains test request suite');
 
   console.log('\n' + '='.repeat(65));
   console.log(`SUMMARY: ${passed}/${total} checks passed successfully.`);

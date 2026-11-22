@@ -3,7 +3,7 @@
   "info": {
     "title": "Multi-Vendor Marketplace Platform API",
     "version": "1.0.0",
-    "description": "Backend API built with Clean Architecture for Axlero Startup Launch Kit - Project 1 (Retail & Ecommerce Multi-Vendor Marketplace Platform). Includes JWT authentication and Role-Based Access Control (Admin, Vendor, Customer)."
+    "description": "Backend API built with Clean Architecture for Axlero Startup Launch Kit - Project 1 (Retail & Ecommerce Multi-Vendor Marketplace Platform). Includes JWT authentication, Role-Based Access Control (Admin, Vendor, Customer), multi-vendor product CRUD, and multipart image upload."
   },
   "servers": [
     {
@@ -96,6 +96,56 @@
           }
         }
       },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "673f12345abcdef123456789"
+          },
+          "vendorId": {
+            "type": "string",
+            "example": "654321abcdef1234567890ab"
+          },
+          "title": {
+            "type": "string",
+            "example": "Ergonomic Mechanical Keyboard"
+          },
+          "description": {
+            "type": "string",
+            "example": "RGB backlit wireless mechanical keyboard with blue switches."
+          },
+          "price": {
+            "type": "number",
+            "example": 99.99
+          },
+          "stock": {
+            "type": "integer",
+            "example": 25
+          },
+          "category": {
+            "type": "string",
+            "example": "Electronics"
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "/uploads/products/product-1732000000-123456.png"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "draft", "archived"],
+            "example": "active"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "AuthResponse": {
         "type": "object",
         "properties": {
@@ -117,6 +167,41 @@
                 "type": "string",
                 "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
               }
+            }
+          }
+        }
+      },
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Product listing created successfully"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Product"
+          }
+        }
+      },
+      "ProductListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "count": {
+            "type": "integer",
+            "example": 5
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Product"
             }
           }
         }
@@ -143,24 +228,7 @@
         "description": "Returns status of the server",
         "responses": {
           "200": {
-            "description": "API is operational",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    },
-                    "timestamp": {
-                      "type": "string",
-                      "example": "2026-11-15T16:25:00.000Z"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "API is operational"
           }
         }
       }
@@ -168,7 +236,7 @@
     "/api/v1/auth/register": {
       "post": {
         "summary": "Register a new User",
-        "description": "Creates a new customer or vendor account. Self-registration for admin is restricted.",
+        "description": "Creates a customer or vendor account.",
         "requestBody": {
           "required": true,
           "content": {
@@ -181,34 +249,7 @@
         },
         "responses": {
           "201": {
-            "description": "User created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Email already registered",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "User created successfully"
           }
         }
       }
@@ -216,7 +257,7 @@
     "/api/v1/auth/login": {
       "post": {
         "summary": "Authenticate User",
-        "description": "Authenticates user credentials and returns a signed JWT token with role information.",
+        "description": "Authenticates user credentials and returns a signed JWT token.",
         "requestBody": {
           "required": true,
           "content": {
@@ -229,24 +270,7 @@
         },
         "responses": {
           "200": {
-            "description": "Login successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Login successful"
           }
         }
       }
@@ -254,41 +278,10 @@
     "/api/v1/auth/me": {
       "get": {
         "summary": "Get Current User Profile",
-        "description": "Returns the authenticated user's profile details. Requires Bearer JWT.",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "responses": {
           "200": {
-            "description": "Current user profile",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/User"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized / Missing or invalid token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "Current user profile"
           }
         }
       }
@@ -296,51 +289,10 @@
     "/api/v1/auth/vendor/dashboard": {
       "get": {
         "summary": "Vendor Dashboard Status (RBAC Protected)",
-        "description": "Accessible only by users with 'vendor' or 'admin' roles. Returns 403 Forbidden for 'customer'.",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "responses": {
           "200": {
-            "description": "Access granted to vendor dashboard",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Access granted to Vendor Dashboard"
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "vendorId": {
-                          "type": "string"
-                        },
-                        "role": {
-                          "type": "string",
-                          "example": "vendor"
-                        },
-                        "scope": {
-                          "type": "string",
-                          "example": "vendor_isolated_catalog"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
+            "description": "Access granted to vendor dashboard"
           },
           "403": {
             "description": "Forbidden: Requires vendor or admin role"
@@ -351,55 +303,132 @@
     "/api/v1/auth/admin/dashboard": {
       "get": {
         "summary": "Platform Admin Operations (RBAC Protected)",
-        "description": "Accessible strictly by users with the 'admin' role. Returns 403 Forbidden for 'customer' and 'vendor'.",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
+        "security": [{ "BearerAuth": [] }],
         "responses": {
           "200": {
-            "description": "Access granted to admin governance",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Access granted to Platform Admin Operations"
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "adminId": {
-                          "type": "string"
-                        },
-                        "role": {
-                          "type": "string",
-                          "example": "admin"
-                        },
-                        "scope": {
-                          "type": "string",
-                          "example": "platform_wide_governance"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
+            "description": "Access granted to admin governance"
           },
           "403": {
             "description": "Forbidden: Requires admin role"
           }
+        }
+      }
+    },
+    "/api/v1/products": {
+      "post": {
+        "summary": "Create Vendor Product Listing",
+        "description": "Upload a new product listing with multipart image file upload. Automatically linked to the authenticated vendor's ID.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "price", "stock", "category"],
+                "properties": {
+                  "title": { "type": "string", "example": "Wireless Mouse" },
+                  "description": { "type": "string", "example": "Silent optical mouse." },
+                  "price": { "type": "number", "example": 29.99 },
+                  "stock": { "type": "integer", "example": 50 },
+                  "category": { "type": "string", "example": "Electronics" },
+                  "status": { "type": "string", "enum": ["active", "draft", "archived"], "default": "active" },
+                  "image": { "type": "string", "format": "binary", "description": "JPEG, PNG, or WebP photo up to 5MB" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductResponse" }
+              }
+            }
+          },
+          "403": { "description": "Forbidden: Only vendors can publish products" }
+        }
+      }
+    },
+    "/api/v1/products/vendor": {
+      "get": {
+        "summary": "List Authenticated Vendor's Products",
+        "description": "Retrieves only products belonging exclusively to the authenticated vendor (Multi-Vendor Isolation).",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Vendor's isolated product catalog",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductListResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{id}": {
+      "get": {
+        "summary": "Get Single Product Details",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductResponse" }
+              }
+            }
+          },
+          "404": { "description": "Product not found" }
+        }
+      },
+      "put": {
+        "summary": "Update Vendor Product Listing",
+        "description": "Updates a product listing. Enforces vendor ownership: a vendor can only update their own listings.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "price": { "type": "number" },
+                  "stock": { "type": "integer" },
+                  "category": { "type": "string" },
+                  "status": { "type": "string", "enum": ["active", "draft", "archived"] },
+                  "image": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Product updated successfully" },
+          "403": { "description": "Forbidden: Cannot edit another vendor's product" },
+          "404": { "description": "Product not found or unauthorized" }
+        }
+      },
+      "delete": {
+        "summary": "Delete Vendor Product Listing",
+        "description": "Deletes a product listing. Enforces vendor ownership: a vendor can only delete their own listings.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Product deleted successfully" },
+          "403": { "description": "Forbidden" },
+          "404": { "description": "Product not found or unauthorized" }
         }
       }
     }
