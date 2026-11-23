@@ -8,6 +8,7 @@ class Product {
   constructor({
     id = null,
     vendorId,
+    vendorName = null,
     title,
     description = '',
     price,
@@ -20,6 +21,7 @@ class Product {
   }) {
     this.id = id;
     this.vendorId = vendorId;
+    this.vendorName = vendorName;
     this.title = title;
     this.description = description;
     this.price = Number(price);
@@ -88,6 +90,7 @@ class Product {
     return {
       id: this.id,
       vendorId: this.vendorId,
+      vendorName: this.vendorName,
       title: this.title,
       description: this.description,
       price: this.price,

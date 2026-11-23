@@ -39,6 +39,21 @@ class ProductService {
     return products.map((p) => p.toJSON());
   }
 
+  async getPublicProducts(filters = {}) {
+    const { products, total, page, totalPages } = await this.productRepository.findAll({
+      ...filters,
+      status: 'active', // Data Integrity Invariant: Consumers only see active listings
+      inStockOnly: filters.inStockOnly !== 'false', // Default to true: only items in stock
+    });
+
+    return {
+      products: products.map((p) => p.toJSON()),
+      total,
+      page,
+      totalPages,
+    };
+  }
+
   async updateProduct(id, vendorId, updateData) {
     const updated = await this.productRepository.update(id, vendorId, updateData);
     if (!updated) {

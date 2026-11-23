@@ -7,6 +7,9 @@ const { productController } = require('../../container');
 
 const router = express.Router();
 
+// Public: Marketplace product discovery with multidimensional filtering & search
+router.get('/', productController.getPublicProducts);
+
 // Vendor-specific catalog retrieval (must be before /:id)
 router.get('/vendor', auth, authorize(ROLES.VENDOR, ROLES.ADMIN), productController.getVendorProducts);
 

@@ -2,11 +2,41 @@ class ProductController {
   constructor({ productService }) {
     this.productService = productService;
 
+    this.getPublicProducts = this.getPublicProducts.bind(this);
     this.createProduct = this.createProduct.bind(this);
     this.getVendorProducts = this.getVendorProducts.bind(this);
     this.getProductById = this.getProductById.bind(this);
     this.updateProduct = this.updateProduct.bind(this);
     this.deleteProduct = this.deleteProduct.bind(this);
+  }
+
+  async getPublicProducts(req, res, next) {
+    try {
+      const { category, minPrice, maxPrice, vendorId, search, sort, page, limit, inStockOnly } = req.query;
+
+      const result = await this.productService.getPublicProducts({
+        category,
+        minPrice,
+        maxPrice,
+        vendorId,
+        search,
+        sort,
+        page,
+        limit,
+        inStockOnly,
+      });
+
+      res.status(200).json({
+        success: true,
+        count: result.products.length,
+        total: result.total,
+        page: result.page,
+        totalPages: result.totalPages,
+        data: result.products,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
 
   async createProduct(req, res, next) {

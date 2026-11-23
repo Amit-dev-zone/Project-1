@@ -125,6 +125,28 @@ async function runVerification() {
       mockDb.splice(idx, 1);
       return true;
     },
+    async findAll({ category, minPrice, maxPrice, vendorId, search, status, inStockOnly, page = 1, limit = 12 } = {}) {
+      let filtered = [...mockDb];
+      if (status) filtered = filtered.filter((p) => p.status === status);
+      if (inStockOnly) filtered = filtered.filter((p) => p.stock > 0);
+      if (vendorId) filtered = filtered.filter((p) => p.vendorId === vendorId);
+      if (category && category !== 'ALL') {
+        filtered = filtered.filter((p) => (p.category || '').toLowerCase() === category.toLowerCase());
+      }
+      if (minPrice !== undefined) filtered = filtered.filter((p) => p.price >= minPrice);
+      if (maxPrice !== undefined) filtered = filtered.filter((p) => p.price <= maxPrice);
+      if (search && search.trim()) {
+        const s = search.toLowerCase();
+        filtered = filtered.filter((p) => (p.title || '').toLowerCase().includes(s) || (p.description || '').toLowerCase().includes(s));
+      }
+      const total = filtered.length;
+      return {
+        products: filtered.slice((page - 1) * limit, page * limit),
+        total,
+        page,
+        totalPages: Math.ceil(total / limit) || 1,
+      };
+    },
   };
 
   const productService = new ProductService({ productRepository: mockProductRepo });
@@ -160,8 +182,55 @@ async function runVerification() {
   const updatedProduct = await productService.updateProduct(v1Product.id, 'vendor-1', { price: 79.99 });
   assert(updatedProduct.price === 79.99, 'Vendor 1 successfully updates own product');
 
-  // 6. Express App & Documentation Assets
-  console.log('\n[6] Express App & Documentation Assets:');
+  // 6. Consumer Storefront & Advanced Filtering (Week 3 Day 1)
+  console.log('\n[6] Consumer Storefront & Advanced Filtering API:');
+  // Seed mock products
+  await productService.createProduct('vendor-1', {
+    title: 'Running Shoes Pro',
+    price: 120.0,
+    stock: 10,
+    category: 'Footwear',
+  });
+  await productService.createProduct('vendor-2', {
+    title: 'Mechanical Keyboard RGB',
+    price: 89.0,
+    stock: 5,
+    category: 'Electronics',
+  });
+  await productService.createProduct('vendor-2', {
+    title: 'Wireless Gaming Mouse',
+    price: 45.0,
+    stock: 0, // Out of stock
+    category: 'Electronics',
+  });
+
+  // Verify only active and in-stock items returned by default
+  const publicAll = await productService.getPublicProducts({});
+  const hasOutOfStock = publicAll.products.some((p) => p.stock === 0);
+  assert(!hasOutOfStock, 'Public storefront discovery filters out items with stock === 0');
+
+  // Verify Category Filter
+  const footwearResults = await productService.getPublicProducts({ category: 'Footwear' });
+  const allFootwear = footwearResults.products.every((p) => p.category.toLowerCase() === 'footwear');
+  assert(allFootwear && footwearResults.products.length >= 2, 'ProductService filters public products by category');
+
+  // Verify Price Range Filter
+  const priceFiltered = await productService.getPublicProducts({ minPrice: 80, maxPrice: 100 });
+  const inPriceRange = priceFiltered.products.every((p) => p.price >= 80 && p.price <= 100);
+  assert(inPriceRange && priceFiltered.products.length >= 1, 'ProductService filters public products by price range (minPrice & maxPrice)');
+
+  // Verify Search Query Filter
+  const searchResults = await productService.getPublicProducts({ search: 'Keyboard' });
+  const matchedKeyword = searchResults.products.every((p) => p.title.toLowerCase().includes('keyboard'));
+  assert(matchedKeyword && searchResults.products.length === 1, 'ProductService searches products by title/description keyword');
+
+  // Verify Vendor Isolation in Public Filtering
+  const vendor2Results = await productService.getPublicProducts({ vendorId: 'vendor-2' });
+  const allVendor2 = vendor2Results.products.every((p) => p.vendorId === 'vendor-2');
+  assert(allVendor2 && vendor2Results.products.length >= 1, 'ProductService filters products by vendorId');
+
+  // 7. Express App & Documentation Assets
+  console.log('\n[7] Express App & Documentation Assets:');
   assert(typeof app === 'function', 'Express app initialized successfully');
   assert(Boolean(app.router || app._router), 'Express app loaded middleware and route stacks');
 

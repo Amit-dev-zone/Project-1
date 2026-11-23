@@ -1,6 +1,11 @@
 import apiClient from './client';
 
 export const productService = {
+  async getPublicProducts(params = {}) {
+    const response = await apiClient.get('/products', { params });
+    return response.data;
+  },
+
   async getVendorProducts(params = {}) {
     const response = await apiClient.get('/products/vendor', { params });
     return response.data;
@@ -12,7 +17,6 @@ export const productService = {
   },
 
   async createProduct(productData) {
-    // If productData is an instance of FormData, send with multipart headers
     const isFormData = productData instanceof FormData;
     const response = await apiClient.post('/products', productData, {
       headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
