@@ -1,11 +1,13 @@
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import VendorLayout from './components/VendorLayout';
 import { Loader2 } from 'lucide-react';
 
 // Lazy-loaded route components for optimized bundle size & Lighthouse 85+ score
+const Storefront = lazy(() => import('./pages/Storefront'));
 const VendorLogin = lazy(() => import('./pages/VendorLogin'));
 const VendorRegister = lazy(() => import('./pages/VendorRegister'));
 const DashboardHome = lazy(() => import('./pages/DashboardHome'));
@@ -23,17 +25,14 @@ function LoadingFallback() {
   );
 }
 
-function RootRedirect() {
-  const { isAuthenticated, loading } = useAuth();
-  if (loading) return null;
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
-}
-
 export function AppRoutes() {
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
-        <Route path="/" element={<RootRedirect />} />
+        {/* Consumer Storefront */}
+        <Route path="/" element={<Storefront />} />
+
+        {/* Vendor Authentication */}
         <Route path="/login" element={<VendorLogin />} />
         <Route path="/register" element={<VendorRegister />} />
 
@@ -61,7 +60,9 @@ export function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <CartProvider>
+        <AppRoutes />
+      </CartProvider>
     </AuthProvider>
   );
 }
