@@ -17,6 +17,7 @@ import { productService } from '../api/productService';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import FilterSidebar from '../components/FilterSidebar';
+import ProductDetailModal from '../components/ProductDetailModal';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest Arrivals' },
@@ -45,6 +46,9 @@ export default function Storefront() {
 
   // Mobile Drawer State
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  // Selected Product for Detail Modal
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Cart Feedback Toast
   const [addedNotice, setAddedNotice] = useState(null);
@@ -449,7 +453,8 @@ export default function Storefront() {
                   return (
                     <div
                       key={productId}
-                      className="group rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 p-4 flex flex-col justify-between transition-all duration-200 hover:shadow-xl hover:shadow-indigo-500/5"
+                      onClick={() => setSelectedProduct(product)}
+                      className="group rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 p-4 flex flex-col justify-between transition-all duration-200 hover:shadow-xl hover:shadow-indigo-500/10 cursor-pointer"
                     >
                       <div>
                         {/* Image Canvas */}
@@ -520,7 +525,10 @@ export default function Storefront() {
                         </div>
 
                         <button
-                          onClick={() => handleAddToCart(product)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(product);
+                          }}
                           disabled={isOutOfStock}
                           className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all duration-150 ${
                             isOutOfStock
@@ -579,6 +587,13 @@ export default function Storefront() {
           </main>
         </div>
       </div>
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        product={selectedProduct}
+        isOpen={Boolean(selectedProduct)}
+        onClose={() => setSelectedProduct(null)}
+      />
     </div>
   );
 }
