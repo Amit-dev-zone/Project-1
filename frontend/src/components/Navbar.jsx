@@ -10,6 +10,7 @@ export default function Navbar() {
   const location = useLocation();
 
   const isStorefront = location.pathname === '/' || location.pathname === '/store';
+  const isCart = location.pathname === '/cart';
 
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-slate-900/80 border-b border-slate-800">
@@ -55,7 +56,11 @@ export default function Navbar() {
           <Link
             to="/cart"
             id="cart-nav-button"
-            className="relative flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-800 border border-slate-700/60 text-slate-200 transition-all duration-200 hover:border-indigo-500/50 group"
+            className={`relative flex items-center gap-2.5 px-3.5 py-2 rounded-xl border transition-all duration-200 group ${
+              isCart
+                ? 'bg-indigo-600/20 border-indigo-500/70 text-white shadow-lg shadow-indigo-500/10'
+                : 'bg-slate-800/90 hover:bg-slate-800 border-slate-700/60 text-slate-200 hover:border-indigo-500/50'
+            }`}
           >
             <div className="relative">
               <ShoppingBag className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />

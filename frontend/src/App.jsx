@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 
 // Lazy-loaded route components for optimized bundle size & Lighthouse 85+ score
 const Storefront = lazy(() => import('./pages/Storefront'));
+const CartPage = lazy(() => import('./pages/CartPage'));
 const VendorLogin = lazy(() => import('./pages/VendorLogin'));
 const VendorRegister = lazy(() => import('./pages/VendorRegister'));
 const DashboardHome = lazy(() => import('./pages/DashboardHome'));
@@ -31,6 +32,7 @@ export function AppRoutes() {
       <Routes>
         {/* Consumer Storefront */}
         <Route path="/" element={<Storefront />} />
+        <Route path="/cart" element={<CartPage />} />
 
         {/* Vendor Authentication */}
         <Route path="/login" element={<VendorLogin />} />
